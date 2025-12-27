@@ -1,0 +1,24 @@
+﻿# Build results
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# SQLite (se não quiseres versionar a BD)
+*.db
+*.db-shm
+*.db-wal
