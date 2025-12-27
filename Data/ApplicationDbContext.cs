@@ -6,5 +6,5 @@ namespace AdocaoAnimais_v1.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
 {
-    public DbSet<Skins> SkinsTabela { get; set; }
+    public DbSet<Animal> Animais { get; set; }
 }
