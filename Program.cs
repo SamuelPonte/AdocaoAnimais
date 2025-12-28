@@ -17,6 +17,7 @@ builder.Services.AddControllersWithViews();
 
 // cors
 builder.Services.AddCors();
+
 //swagger yeah
 builder.Services.AddSwaggerGen();
 
@@ -47,8 +48,17 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// Serve o React (wwwroot)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseRouting();
 
+// Ordem correta: CORS -> Auth -> Authorization
+app.UseCors("frontend");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -60,5 +70,8 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
     .WithStaticAssets();
+
+// React Router fallback
+app.MapFallbackToFile("index.html");
 
 app.Run();

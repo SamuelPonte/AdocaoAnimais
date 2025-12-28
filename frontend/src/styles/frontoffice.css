@@ -1,0 +1,41 @@
+﻿.frontoffice-hero {
+    background: linear-gradient(135deg, #f7f9ff 0%, #ffffff 55%, #f7f7f7 100%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.frontoffice-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.frontoffice-subtitle {
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.frontoffice-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.frontoffice-img {
+    height: 220px;
+    object-fit: cover;
+}
+
+.frontoffice-noimg {
+    height: 220px;
+    background: #f6f7f9;
+}
+
+.frontoffice-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.frontoffice-modal-noimg {
+    height: 260px;
+    background: #f6f7f9;
+}

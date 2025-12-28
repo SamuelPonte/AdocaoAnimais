@@ -1,0 +1,13 @@
+﻿.auth-hero {
+    background: linear-gradient(135deg, #f7f9ff 0%, #ffffff 55%, #f7f7f7 100%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.auth-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+    color: rgba(0, 0, 0, 0.65);
+}

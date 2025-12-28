@@ -1,0 +1,21 @@
+﻿/* BackofficeAnimais – estilos extra por cima do Bootstrap */
+
+.backoffice-animais .app-container {
+    max-width: 1100px;
+}
+
+.backoffice-user {
+    font-weight: 600;
+}
+
+.backoffice-noimg {
+    height: 210px;
+    background: #f6f7f9;
+}
+
+.backoffice-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;   /* limita linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

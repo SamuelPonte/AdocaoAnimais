@@ -15,5 +15,5 @@ public class Animal
     public string Foto { get; set; }      // URL ou caminho
     
     // vai ser o email da tabela AspNetUsers
-    public string Dono  { get; set; }
+    public string? Dono  { get; set; }
 }

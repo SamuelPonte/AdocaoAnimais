@@ -3,21 +3,27 @@ import { api } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 
-export default function Login() {
+export default function Register() {
     const nav = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [password2, setPassword2] = useState("");
     const [msg, setMsg] = useState("");
 
     async function onSubmit(e) {
         e.preventDefault();
         setMsg("");
 
+        const u = username.trim();
+        if (!u) return setMsg("Indica um email/username.");
+        if (password.length < 6) return setMsg("A password deve ter pelo menos 6 caracteres.");
+        if (password !== password2) return setMsg("As passwords não coincidem.");
+
         try {
-            await api.login(username.trim(), password);
+            await api.register(u, password);
             nav("/backoffice/animais");
         } catch (e2) {
-            setMsg(`Login inválido: ${e2.message}`);
+            setMsg(`Erro no registo: ${e2.message}`);
             console.error(e2);
         }
     }
@@ -25,9 +31,9 @@ export default function Login() {
     return (
         <div className="auth">
             <div className="auth-hero p-4 p-md-5 rounded-4 mb-4">
-                <h1 className="auth-title mb-2">Backoffice</h1>
+                <h1 className="auth-title mb-2">Criar Conta</h1>
                 <p className="auth-subtitle mb-0">
-                    Inicia sessão para gerir os teus animais (criar, editar e apagar).
+                    Regista-te para poderes introduzir animais e gerir apenas os teus registos.
                 </p>
             </div>
 
@@ -35,7 +41,7 @@ export default function Login() {
                 <div className="col-12 col-md-7 col-lg-5">
                     <div className="card shadow-sm">
                         <div className="card-body">
-                            <h4 className="card-title mb-3">Login</h4>
+                            <h4 className="card-title mb-3">Registo</h4>
 
                             {msg && <div className="alert alert-warning py-2">{msg}</div>}
 
@@ -60,21 +66,33 @@ export default function Login() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
                                     />
+                                    <div className="form-text">Mínimo 6 caracteres (podes ter regras extra no Identity).</div>
                                 </div>
 
-                                <button className="btn btn-primary" type="submit">
-                                    Entrar
+                                <div>
+                                    <label className="form-label">Confirmar password</label>
+                                    <input
+                                        className="form-control"
+                                        type="password"
+                                        value={password2}
+                                        onChange={(e) => setPassword2(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <button className="btn btn-success" type="submit">
+                                    Criar conta
                                 </button>
 
                                 <div className="text-muted small">
-                                    Ainda não tens conta? <Link to="/register">Criar conta</Link>
+                                    Já tens conta? <Link to="/login">Voltar ao login</Link>
                                 </div>
                             </form>
                         </div>
                     </div>
 
                     <div className="text-muted small mt-3">
-                        Dica: se estiveres a testar cookies/autenticação, garante que estás a usar o mesmo domínio da API.
+                        Se o teu backend estiver com confirmação de conta obrigatória, o login automático após registo pode não ocorrer.
                     </div>
                 </div>
             </div>

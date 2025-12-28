@@ -20,6 +20,24 @@ namespace AdocaoAnimais_v1.Controllers.api
             _userManager = userManager;
             _signInManager = signInManager;
         }
+        
+        public record AuthDto(string Username, string Password);
+
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] AuthDto dto)
+        {
+            var user = new IdentityUser { UserName = dto.Username, Email = dto.Username };
+            var result = await _userManager.CreateAsync(user, dto.Password);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            // opcional: login automático após registo
+            await _signInManager.SignInAsync(user, isPersistent: true);
+
+            return Ok();
+        }
 
         [HttpGet]
         [Route("whoami")]

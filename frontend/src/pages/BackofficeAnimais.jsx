@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import "../styles/backoffice-animais.css";
 
 const vazio = {
     id: 0,
@@ -11,7 +12,7 @@ const vazio = {
     sexo: "",
     porte: "",
     descricao: "",
-    foto: "",
+    foto: ""
 };
 
 export default function BackofficeAnimais() {
@@ -55,7 +56,7 @@ export default function BackofficeAnimais() {
             await load();
             setMsg("Animal criado com sucesso.");
         } catch (e2) {
-            setMsg("Erro a criar (precisas de estar autenticado).");
+            setMsg(`Erro a criar: ${e2.message}`);
             console.error(e2);
         }
     }
@@ -75,7 +76,7 @@ export default function BackofficeAnimais() {
             await load();
             setMsg("Alterações guardadas.");
         } catch (e2) {
-            setMsg("Não tens permissões para editar este animal.");
+            setMsg(`Erro a guardar: ${e2.message}`);
             console.error(e2);
         }
     }
@@ -88,7 +89,7 @@ export default function BackofficeAnimais() {
             await load();
             setMsg("Animal apagado.");
         } catch (e2) {
-            setMsg("Não tens permissões para apagar este animal.");
+            setMsg(`Erro a guardar: ${e2.message}`);
             console.error(e2);
         }
     }
@@ -98,92 +99,203 @@ export default function BackofficeAnimais() {
         nav("/login");
     }
 
+    const isEditing = !!form.id;
+
     return (
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <h2>Backoffice — Animais</h2>
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <span style={{ color: "#444" }}>{user?.user}</span>
-                    <button onClick={sair}>Logout</button>
+        <div className="container app-container my-4 backoffice-animais">
+            {/* Header */}
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <h2 className="mb-1">Backoffice</h2>
+                    <div className="text-muted small">Gestão de animais</div>
+                </div>
+
+                <div className="d-flex align-items-center gap-2">
+          <span className="badge text-bg-light border backoffice-user">
+            {user?.user ?? "—"}
+          </span>
+                    <button className="btn btn-outline-danger btn-sm" onClick={sair}>
+                        Logout
+                    </button>
                 </div>
             </div>
 
-            {msg && <div style={{ marginBottom: 12 }}>{msg}</div>}
+            {/* Message */}
+            {msg && (
+                <div className="alert alert-info py-2" role="alert">
+                    {msg}
+                </div>
+            )}
 
-            <div
-                style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 12,
-                    padding: 12,
-                    marginBottom: 18,
-                    background: "white",
-                }}
-            >
-                <h3 style={{ marginTop: 0 }}>{form.id ? "Editar Animal" : "Criar Animal"}</h3>
-
-                <form onSubmit={form.id ? guardar : criar} style={{ display: "grid", gap: 10 }}>
-                    <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-                        <input value={form.nome} onChange={(e) => setField("nome", e.target.value)} placeholder="Nome" />
-                        <input value={form.especie} onChange={(e) => setField("especie", e.target.value)} placeholder="Espécie" />
-                        <input value={form.raca} onChange={(e) => setField("raca", e.target.value)} placeholder="Raça" />
-                        <input
-                            value={form.idade}
-                            onChange={(e) => setField("idade", Number(e.target.value))}
-                            placeholder="Idade"
-                            type="number"
-                            min="0"
-                        />
-                        <input value={form.sexo} onChange={(e) => setField("sexo", e.target.value)} placeholder="Sexo" />
-                        <input value={form.porte} onChange={(e) => setField("porte", e.target.value)} placeholder="Porte" />
+            {/* Form card */}
+            <div className="card shadow-sm mb-4">
+                <div className="card-header bg-white">
+                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h5 className="mb-0">{isEditing ? "Editar Animal" : "Criar Animal"}</h5>
+                        {isEditing && (
+                            <span className="badge text-bg-warning">Modo edição</span>
+                        )}
                     </div>
+                </div>
 
-                    <input value={form.foto} onChange={(e) => setField("foto", e.target.value)} placeholder="URL da Foto" />
-
-                    <textarea
-                        value={form.descricao}
-                        onChange={(e) => setField("descricao", e.target.value)}
-                        placeholder="Descrição"
-                        rows={3}
-                    />
-
-                    <div style={{ display: "flex", gap: 10 }}>
-                        <button type="submit">{form.id ? "Guardar" : "Criar"}</button>
-                        {form.id ? <button type="button" onClick={() => setForm(vazio)}>Cancelar</button> : null}
-                    </div>
-                </form>
-            </div>
-
-            <h3>Os meus animais</h3>
-
-            <div style={{ display: "grid", gap: 12 }}>
-                {meus.map((a) => (
-                    <div
-                        key={a.id}
-                        style={{
-                            border: "1px solid #ddd",
-                            borderRadius: 12,
-                            padding: 12,
-                            background: "white",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: 12,
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        <div style={{ minWidth: 240 }}>
-                            <b>{a.nome}</b> — {a.especie} {a.raca ? `(${a.raca})` : ""}
-                            <div style={{ color: "#555", fontSize: 14 }}>Idade: {a.idade ?? "-"}</div>
+                <div className="card-body">
+                    <form onSubmit={isEditing ? guardar : criar} className="row g-3">
+                        <div className="col-12 col-md-4">
+                            <label className="form-label">Nome</label>
+                            <input
+                                className="form-control"
+                                value={form.nome}
+                                onChange={(e) => setField("nome", e.target.value)}
+                                placeholder="Ex.: Luna"
+                                required
+                            />
                         </div>
 
-                        <div style={{ display: "flex", gap: 10 }}>
-                            <button onClick={() => editar(a)}>Editar</button>
-                            <button onClick={() => apagar(a.id)}>Apagar</button>
+                        <div className="col-12 col-md-4">
+                            <label className="form-label">Espécie</label>
+                            <input
+                                className="form-control"
+                                value={form.especie}
+                                onChange={(e) => setField("especie", e.target.value)}
+                                placeholder="Ex.: Cão / Gato"
+                                required
+                            />
                         </div>
-                    </div>
-                ))}
 
-                {meus.length === 0 && <div style={{ color: "#666" }}>Ainda não criaste animais.</div>}
+                        <div className="col-12 col-md-4">
+                            <label className="form-label">Raça</label>
+                            <input
+                                className="form-control"
+                                value={form.raca}
+                                onChange={(e) => setField("raca", e.target.value)}
+                                placeholder="Ex.: SRD"
+                            />
+                        </div>
+
+                        <div className="col-6 col-md-3">
+                            <label className="form-label">Idade</label>
+                            <input
+                                className="form-control"
+                                type="number"
+                                min="0"
+                                value={form.idade}
+                                onChange={(e) => setField("idade", Number(e.target.value))}
+                            />
+                        </div>
+
+                        <div className="col-6 col-md-3">
+                            <label className="form-label">Sexo</label>
+                            <input
+                                className="form-control"
+                                value={form.sexo}
+                                onChange={(e) => setField("sexo", e.target.value)}
+                                placeholder="M / F"
+                            />
+                        </div>
+
+                        <div className="col-12 col-md-6">
+                            <label className="form-label">Porte</label>
+                            <input
+                                className="form-control"
+                                value={form.porte}
+                                onChange={(e) => setField("porte", e.target.value)}
+                                placeholder="Pequeno / Médio / Grande"
+                            />
+                        </div>
+
+                        <div className="col-12">
+                            <label className="form-label">URL da Foto</label>
+                            <input
+                                className="form-control"
+                                value={form.foto}
+                                onChange={(e) => setField("foto", e.target.value)}
+                                placeholder="https://..."
+                            />
+                            <div className="form-text">
+                                Dica: usa uma imagem pública (URL) para aparecer no frontoffice.
+                            </div>
+                        </div>
+
+                        <div className="col-12">
+                            <label className="form-label">Descrição</label>
+                            <textarea
+                                className="form-control"
+                                rows={3}
+                                value={form.descricao}
+                                onChange={(e) => setField("descricao", e.target.value)}
+                                placeholder="Personalidade, necessidades, etc."
+                            />
+                        </div>
+
+                        <div className="col-12 d-flex flex-wrap gap-2">
+                            <button className={`btn ${isEditing ? "btn-primary" : "btn-success"}`} type="submit">
+                                {isEditing ? "Guardar" : "Criar"}
+                            </button>
+
+                            {isEditing && (
+                                <button
+                                    className="btn btn-outline-secondary"
+                                    type="button"
+                                    onClick={() => setForm(vazio)}
+                                >
+                                    Cancelar
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                </div>
             </div>
+
+            {/* List */}
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <h4 className="mb-0">Os meus animais</h4>
+                <span className="badge text-bg-secondary">{meus.length}</span>
+            </div>
+
+            {meus.length === 0 ? (
+                <div className="alert alert-light border">
+                    Ainda não criaste animais.
+                </div>
+            ) : (
+                <div className="row g-3">
+                    {meus.map((a) => (
+                        <div className="col-12 col-md-6 col-lg-4" key={a.id}>
+                            <div className="card h-100 shadow-sm">
+                                {a.foto ? (
+                                    <img className="card-img-top" src={a.foto} alt={a.nome} />
+                                ) : (
+                                    <div className="card-img-top backoffice-noimg d-flex align-items-center justify-content-center">
+                                        <span className="text-muted">Sem foto</span>
+                                    </div>
+                                )}
+
+                                <div className="card-body">
+                                    <h5 className="card-title mb-1">{a.nome}</h5>
+                                    <div className="text-muted small mb-2">
+                                        {a.especie}{a.raca ? ` • ${a.raca}` : ""}{a.idade != null ? ` • ${a.idade} anos` : ""}
+                                    </div>
+
+                                    {a.descricao && (
+                                        <p className="card-text backoffice-desc">
+                                            {a.descricao}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="card-footer bg-white d-flex gap-2">
+                                    <button className="btn btn-outline-primary btn-sm" onClick={() => editar(a)}>
+                                        Editar
+                                    </button>
+                                    <button className="btn btn-outline-danger btn-sm" onClick={() => apagar(a.id)}>
+                                        Apagar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
+
 }

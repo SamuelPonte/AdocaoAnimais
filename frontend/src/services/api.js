@@ -23,16 +23,36 @@ export const api = {
     login: (username, password) =>
         request("/api/AutenticacaoApi/login", {
             method: "POST",
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ 
+                username, 
+                password 
+            }),
+        }),
+    register: (username, password) =>
+        request("/api/AutenticacaoApi/register", {
+            method: "POST",
+            body: JSON.stringify({ 
+                username, 
+                password 
+            }),
         }),
     whoami: () => request("/api/AutenticacaoApi/whoami"),
     logout: () => request("/api/AutenticacaoApi/logout", { method: "POST" }),
 
     listAnimais: () => request("/api/AnimaisApi"),
+    
     createAnimal: (animal) =>
-        request("/api/AnimaisApi", { method: "POST", body: JSON.stringify(animal) }),
+        request("/api/AnimaisApi", { 
+            method: "POST",
+            body: JSON.stringify(animal) 
+        }),
     updateAnimal: (id, animal) =>
-        request(`/api/AnimaisApi/${id}`, { method: "PUT", body: JSON.stringify(animal) }),
+        request(`/api/AnimaisApi/${id}`, { 
+            method: "PUT", 
+            body: JSON.stringify(animal) 
+        }),
     deleteAnimal: (id) =>
-        request(`/api/AnimaisApi/${id}`, { method: "DELETE" }),
+        request(`/api/AnimaisApi/${id}`, { 
+            method: "DELETE" 
+        }),
 };
