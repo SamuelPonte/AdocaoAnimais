@@ -5,24 +5,18 @@
 namespace AdocaoAnimais_v1.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class CriacaoTabela : Migration
+    public partial class AddAnimalValidation3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Name",
-                table: "SkinsTabela",
-                newName: "Nome");
+
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Nome",
-                table: "SkinsTabela",
-                newName: "Name");
+
         }
     }
 }

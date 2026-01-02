@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdocaoAnimais_v1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251206150034_CriacaoTabela")]
-    partial class CriacaoTabela
+    [Migration("20260102025805_AddAnimalValidation2")]
+    partial class AddAnimalValidation2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,13 +20,20 @@ namespace AdocaoAnimais_v1.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
 
-            modelBuilder.Entity("AdocaoAnimais_v1.Models.Skins", b =>
+            modelBuilder.Entity("AdocaoAnimais_v1.Models.Animal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Dono")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Especie")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -34,20 +41,28 @@ namespace AdocaoAnimais_v1.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Idade")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("Preco")
-                        .HasColumnType("REAL");
+                    b.Property<string>("Porte")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Raridade")
+                    b.Property<string>("Raca")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Sexo")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SkinsTabela");
+                    b.ToTable("Animais");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

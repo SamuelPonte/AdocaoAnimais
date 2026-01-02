@@ -1,6 +1,8 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import "../styles/frontoffice.css";
+import { ESPECIES, PORTES, SEXOS, labelOf } from "../constants/enums";
+
 
 function Modal({ title, children, onClose }) {
     // modal simples em React (não depende do JS do Bootstrap)
@@ -31,6 +33,10 @@ export default function Frontoffice() {
     const [animais, setAnimais] = useState([]);
     const [q, setQ] = useState("");
     const [page, setPage] = useState(1);
+    
+    //likes
+    const [likes, setLikes] = useState({}); // { [id]: {count, likedByMe} }
+    const [me, setMe] = useState(null);
 
     // filtros
     const [fEspecie, setFEspecie] = useState("");
@@ -46,17 +52,28 @@ export default function Frontoffice() {
         api.listAnimais()
             .then(setAnimais)
             .catch((e) => console.error(e));
+        api.whoami().then(setMe).catch(() => setMe(null));
+        api.likesSummary()
+            .then(setLikes)
+            .catch(() => setLikes({}));
     }, []);
 
+    useEffect(() => {
+        api.likesSummary().then(setLikes).catch(() => setLikes({}));
+    }, [me]);
+
+
+
     const options = useMemo(() => {
-        const norm = (s) => (s ?? "").toString().trim();
-        const uniqSorted = (arr) =>
-            [...new Set(arr.map(norm).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+        // se quiseres, podes incluir também valores “estranhos” vindos da BD (só por segurança)
+        const extraEspecies = [...new Set(animais.map(a => a.especie).filter(Boolean))];
+        const extraPortes = [...new Set(animais.map(a => a.porte).filter(Boolean))];
+        const extraSexos = [...new Set(animais.map(a => a.sexo).filter(Boolean))];
 
         return {
-            especies: uniqSorted(animais.map((a) => a.especie)),
-            portes: uniqSorted(animais.map((a) => a.porte)),
-            sexos: uniqSorted(animais.map((a) => a.sexo)),
+            especies: [...new Set([...ESPECIES, ...extraEspecies])],
+            portes:   [...new Set([...PORTES, ...extraPortes])],
+            sexos:    [...new Set([...SEXOS, ...extraSexos])],
         };
     }, [animais]);
 
@@ -66,9 +83,7 @@ export default function Frontoffice() {
         return animais.filter((a) => {
             const okTexto =
                 !term ||
-                [a.nome, a.especie, a.raca, a.porte, a.sexo, a.descricao].some((v) =>
-                    (v ?? "").toString().toLowerCase().includes(term)
-                );
+                (a.nome ?? "").toLowerCase().includes(term);
 
             const okEspecie = !fEspecie || (a.especie ?? "") === fEspecie;
             const okPorte = !fPorte || (a.porte ?? "") === fPorte;
@@ -100,13 +115,24 @@ export default function Frontoffice() {
         setPage((p) => Math.min(totalPages, p + 1));
     }
 
+    async function onToggleLike(id) {
+        if (!me?.user) {
+            // opcional: abrir modal / mensagem “tens de fazer login”
+            return;
+        }
+        await api.toggleLike(id);
+        const fresh = await api.likesSummary();
+        setLikes(fresh);
+    }
+
+
     return (
         <div className="frontoffice">
             {/* Hero */}
             <div className="frontoffice-hero p-4 p-md-5 rounded-4 mb-4">
                 <div className="row align-items-center g-3">
                     <div className="col-12 col-lg-7">
-                        <h1 className="mb-2 frontoffice-title">Adopção de Animais</h1>
+                        <h1 className="mb-2 frontoffice-title">Adoção de Animais</h1>
                         <p className="mb-0 frontoffice-subtitle">
                             Encontra o teu próximo companheiro.
                         </p>
@@ -119,7 +145,7 @@ export default function Frontoffice() {
                                 className="form-control"
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
-                                placeholder="Pesquisar por nome, espécie, raça, porte..."
+                                placeholder="Pesquisar por nome..."
                                 aria-label="Pesquisar"
                             />
                             {(q || fEspecie || fPorte || fSexo) && (
@@ -142,7 +168,7 @@ export default function Frontoffice() {
                         <select className="form-select" value={fEspecie} onChange={(e) => setFEspecie(e.target.value)}>
                             <option value="">Todas as espécies</option>
                             {options.especies.map((x) => (
-                                <option key={x} value={x}>{x}</option>
+                                <option key={x} value={x}>{labelOf(x)}</option>
                             ))}
                         </select>
                     </div>
@@ -151,7 +177,7 @@ export default function Frontoffice() {
                         <select className="form-select" value={fPorte} onChange={(e) => setFPorte(e.target.value)}>
                             <option value="">Todos os portes</option>
                             {options.portes.map((x) => (
-                                <option key={x} value={x}>{x}</option>
+                                <option key={x} value={x}>{labelOf(x)}</option>
                             ))}
                         </select>
                     </div>
@@ -160,7 +186,7 @@ export default function Frontoffice() {
                         <select className="form-select" value={fSexo} onChange={(e) => setFSexo(e.target.value)}>
                             <option value="">Todos os sexos</option>
                             {options.sexos.map((x) => (
-                                <option key={x} value={x}>{x}</option>
+                                <option key={x} value={x}>{labelOf(x)}</option>
                             ))}
                         </select>
                     </div>
@@ -190,7 +216,7 @@ export default function Frontoffice() {
                                     <div className="card-body">
                                         <div className="d-flex align-items-start justify-content-between gap-2">
                                             <h5 className="card-title mb-1">{a.nome ?? "—"}</h5>
-                                            {a.especie && <span className="badge text-bg-primary">{a.especie}</span>}
+                                            {a.especie && <span className="badge text-bg-primary">{labelOf(a.especie)}</span>}
                                         </div>
 
                                         <div className="text-muted small mb-2">
@@ -199,8 +225,8 @@ export default function Frontoffice() {
                                         </div>
 
                                         <div className="d-flex flex-wrap gap-2 mb-2">
-                                            {a.porte && <span className="badge text-bg-light border">{a.porte}</span>}
-                                            {a.sexo && <span className="badge text-bg-light border">{a.sexo}</span>}
+                                            {a.porte && <span className="badge text-bg-light border">{labelOf(a.porte)}</span>}
+                                            {a.sexo && <span className="badge text-bg-light border">{labelOf(a.sexo)}</span>}
                                         </div>
 
                                         {a.descricao && (
@@ -209,7 +235,17 @@ export default function Frontoffice() {
                                     </div>
 
                                     <div className="card-footer bg-white d-flex justify-content-between align-items-center">
-                                        <span className="text-muted small">ID: {a.id}</span>
+                                        <div className="d-flex align-items-center gap-2">
+                                            <button
+                                                className="btn btn-sm btn-outline-danger"
+                                                onClick={() => onToggleLike(a.id)}
+                                                disabled={!me?.user}
+                                                title={!me?.user ? "Faz login para dar like" : "Like"}
+                                            >
+                                                {(likes[a.id]?.likedByMe ? "❤️" : "🤍")} {likes[a.id]?.count ?? 0}
+                                            </button>
+                                        </div>
+
                                         <button className="btn btn-outline-primary btn-sm" onClick={() => setSelected(a)}>
                                             Ver detalhes
                                         </button>
@@ -253,9 +289,9 @@ export default function Frontoffice() {
 
                         <div className="col-12 col-md-7">
                             <div className="d-flex flex-wrap gap-2 mb-2">
-                                {selected.especie && <span className="badge text-bg-primary">{selected.especie}</span>}
-                                {selected.porte && <span className="badge text-bg-light border">{selected.porte}</span>}
-                                {selected.sexo && <span className="badge text-bg-light border">{selected.sexo}</span>}
+                                {selected.especie && <span className="badge text-bg-primary">{labelOf(selected.especie)}</span>}
+                                {selected.porte && <span className="badge text-bg-light border">{labelOf(selected.porte)}</span>}
+                                {selected.sexo && <span className="badge text-bg-light border">{labelOf(selected.sexo)}</span>}
                                 {selected.idade != null && <span className="badge text-bg-light border">{selected.idade} anos</span>}
                             </div>
 
@@ -272,10 +308,10 @@ export default function Frontoffice() {
                             <div className="mt-3 p-3 rounded-3 border bg-light">
                                 <div className="fw-semibold">Contacto</div>
                                 <div className="text-muted small">
-                                    (exemplo) Dono/Responsável: <b>{selected.dono ?? "N/D"}</b>
+                                    Dono/Responsável: <b>{selected.dono ?? "N/D"}</b>
                                 </div>
                                 <div className="text-muted small">
-                                    Aqui podes depois colocar email/telefone quando tiveres na BD.
+                                    Mais informações disponivel brevemente.
                                 </div>
                             </div>
                         </div>

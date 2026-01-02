@@ -2,6 +2,9 @@
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/backoffice-animais.css";
+import { useAuth } from "../App";
+import { ESPECIES, PORTES, SEXOS, labelOf } from "../constants/enums";
+
 
 const vazio = {
     id: 0,
@@ -17,10 +20,23 @@ const vazio = {
 
 export default function BackofficeAnimais() {
     const nav = useNavigate();
+    const { logout } = useAuth();
     const [user, setUser] = useState(null);
     const [animais, setAnimais] = useState([]);
     const [form, setForm] = useState(vazio);
     const [msg, setMsg] = useState("");
+
+    const RACAS_POR_ESPECIE = {
+        Cao: ["SRD", "Labrador", "PastorAlemao", "Bulldog", "Outro"],
+        Gato: ["SRD", "Persa", "Siamês", "MaineCoon", "Outro"],
+        Coelho: ["Anão", "Belier", "Outro"],
+        Cavalo : ["Árabe", "Frísio", "Gypsy Vanner", "Outro"],
+        Girrafa : ["Girafa-Masai", "Girafa-Reticulada", "Outro"],
+        Ovelha : ["Dorper","Merino","Suffolk", "Outro"],
+        Cabra : ["Serrana","Saanen", "Outro"],
+        Papagaio : ["Curica", "Araras", "Outro"],
+        Outro: ["Outro"]
+    };
 
     async function load() {
         const a = await api.listAnimais();
@@ -95,7 +111,7 @@ export default function BackofficeAnimais() {
     }
 
     async function sair() {
-        try { await api.logout(); } catch {}
+        await logout();    
         nav("/login");
     }
 
@@ -153,23 +169,43 @@ export default function BackofficeAnimais() {
 
                         <div className="col-12 col-md-4">
                             <label className="form-label">Espécie</label>
-                            <input
-                                className="form-control"
+                            <select
+                                className="form-select"
                                 value={form.especie}
-                                onChange={(e) => setField("especie", e.target.value)}
-                                placeholder="Ex.: Cão / Gato"
+                                onChange={(e) => {
+                                    const esp = e.target.value;
+                                    setField("especie", esp);
+
+                                    // reset da raça se mudar de espécie
+                                    const racas = RACAS_POR_ESPECIE[esp] ?? [];
+                                    if (!racas.includes(form.raca)) {
+                                        setField("raca", "");
+                                    }
+                                }}
                                 required
-                            />
+                            >
+                                <option value="">Seleciona a espécie</option>
+                                {ESPECIES.map(x => (
+                                    <option key={x} value={x}>{labelOf(x)}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="col-12 col-md-4">
                             <label className="form-label">Raça</label>
-                            <input
-                                className="form-control"
+                            <select
+                                className="form-select"
                                 value={form.raca}
                                 onChange={(e) => setField("raca", e.target.value)}
-                                placeholder="Ex.: SRD"
-                            />
+                                disabled={!form.especie}
+                            >
+                                <option value="">
+                                    {form.especie ? "Seleciona a raça" : "Escolhe primeiro a espécie"}
+                                </option>
+                                {(RACAS_POR_ESPECIE[form.especie] ?? []).map(x => (
+                                    <option key={x} value={x}>{labelOf(x)}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="col-6 col-md-3">
@@ -185,22 +221,34 @@ export default function BackofficeAnimais() {
 
                         <div className="col-6 col-md-3">
                             <label className="form-label">Sexo</label>
-                            <input
-                                className="form-control"
+                            <select
+                                className="form-select"
                                 value={form.sexo}
                                 onChange={(e) => setField("sexo", e.target.value)}
-                                placeholder="M / F"
-                            />
+                                required
+                            >
+                                <option value="">Seleciona o sexo</option>
+                                {SEXOS.map(x => (
+                                    <option key={x} value={x}>{labelOf(x)}</option>
+                                ))}
+                            </select>
+
                         </div>
 
                         <div className="col-12 col-md-6">
                             <label className="form-label">Porte</label>
-                            <input
-                                className="form-control"
+                            <select
+                                className="form-select"
                                 value={form.porte}
                                 onChange={(e) => setField("porte", e.target.value)}
-                                placeholder="Pequeno / Médio / Grande"
-                            />
+                                required
+                            >
+                                <option value="">Seleciona o porte</option>
+                                {PORTES.map(x => (
+                                    <option key={x} value={x}>{x}</option>
+                                ))}
+                            </select>
+
                         </div>
 
                         <div className="col-12">

@@ -97,7 +97,7 @@ namespace AdocaoAnimais_v1.Controllers.api
         [Authorize]
         public async Task<ActionResult<Animal>> PostAnimal(Animal animal)
         {
-            animal.Dono = User.Identity.Name;
+            animal.Dono = User.Identity!.Name;
             _context.Animais.Add(animal);
             await _context.SaveChangesAsync();
 

@@ -23,28 +23,39 @@ export const api = {
     login: (username, password) =>
         request("/api/AutenticacaoApi/login", {
             method: "POST",
-            body: JSON.stringify({ 
-                username, 
-                password 
+            body: JSON.stringify({
+                Username: username,
+                Password: password,
             }),
         }),
     register: (username, password) =>
         request("/api/AutenticacaoApi/register", {
             method: "POST",
-            body: JSON.stringify({ 
-                username, 
-                password 
+            body: JSON.stringify({
+                Username: username,
+                Password: password,
             }),
         }),
     whoami: () => request("/api/AutenticacaoApi/whoami"),
-    logout: () => request("/api/AutenticacaoApi/logout", { method: "POST" }),
+    logout: () => request("/api/AutenticacaoApi/logout", {
+        method: "POST"
+    }),
 
     listAnimais: () => request("/api/AnimaisApi"),
     
     createAnimal: (animal) =>
         request("/api/AnimaisApi", { 
             method: "POST",
-            body: JSON.stringify(animal) 
+            body: JSON.stringify({
+                nome: animal.nome,
+                especie: animal.especie,   // "Cao" etc
+                raca: animal.raca,
+                idade: animal.idade,
+                sexo: animal.sexo,         // "M" ou "F"
+                porte: animal.porte,       // "Medio" etc
+                descricao: animal.descricao,
+                foto: animal.foto
+            }) 
         }),
     updateAnimal: (id, animal) =>
         request(`/api/AnimaisApi/${id}`, { 
@@ -55,4 +66,15 @@ export const api = {
         request(`/api/AnimaisApi/${id}`, { 
             method: "DELETE" 
         }),
+
+    likesSummary: () => 
+        request("/api/LikesApi/summary", { 
+            credentials: "include" 
+        }),
+    toggleLike: (animalId) => 
+        request(`/api/LikesApi/toggle/${animalId}`, { 
+            method: "POST", 
+            credentials: "include" 
+        }),
+
 };

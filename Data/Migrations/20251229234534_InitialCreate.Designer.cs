@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdocaoAnimais_v1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251227224044_AddAnimais")]
-    partial class AddAnimais
+    [Migration("20251229234534_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,6 @@ namespace AdocaoAnimais_v1.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Dono")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Especie")

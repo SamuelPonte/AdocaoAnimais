@@ -21,22 +21,30 @@ namespace AdocaoAnimais_v1.Controllers.api
             _signInManager = signInManager;
         }
         
-        public record AuthDto(string Username, string Password);
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] AuthDto dto)
+        public async Task<IActionResult> Register([FromBody] LoginApiModel loginModel)
         {
-            var user = new IdentityUser { UserName = dto.Username, Email = dto.Username };
-            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (string.IsNullOrWhiteSpace(loginModel.Username) || string.IsNullOrWhiteSpace(loginModel.Password))
+                return BadRequest("Dados inválidos");
+
+            var user = new IdentityUser
+            {
+                UserName = loginModel.Username,
+                Email = loginModel.Username
+            };
+
+            var result = await _userManager.CreateAsync(user, loginModel.Password);
 
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            // opcional: login automático após registo
+            // login automático após registo
             await _signInManager.SignInAsync(user, isPersistent: true);
 
             return Ok();
+
         }
 
         [HttpGet]
@@ -76,7 +84,7 @@ namespace AdocaoAnimais_v1.Controllers.api
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("logout")]
         public async Task<ActionResult> LogOut()
         {

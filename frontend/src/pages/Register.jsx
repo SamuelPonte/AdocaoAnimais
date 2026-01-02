@@ -2,13 +2,17 @@
 import { api } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
+import { useAuth } from "../App";
 
 export default function Register() {
     const nav = useNavigate();
+    const { refresh } = useAuth();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
     const [msg, setMsg] = useState("");
+    
+
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -17,10 +21,15 @@ export default function Register() {
         const u = username.trim();
         if (!u) return setMsg("Indica um email/username.");
         if (password.length < 6) return setMsg("A password deve ter pelo menos 6 caracteres.");
+        if (!/[^A-Za-z0-9]/.test(password)) return setMsg("A password deve conter pelo menos 1 caraácter especial.");
+        if (!/[a-z]/.test(password)) return setMsg("A password deve conter pelo menos uma letra minúscula.");
+        if (!/[A-Z]/.test(password)) return setMsg("A password deve conter pelo menos uma letra maiúscula.");
+        if (!/[0-9]/.test(password)) return setMsg("A password deve conter pelo menos um número.");
         if (password !== password2) return setMsg("As passwords não coincidem.");
 
         try {
             await api.register(u, password);
+            await refresh();
             nav("/backoffice/animais");
         } catch (e2) {
             setMsg(`Erro no registo: ${e2.message}`);
@@ -30,13 +39,6 @@ export default function Register() {
 
     return (
         <div className="auth">
-            <div className="auth-hero p-4 p-md-5 rounded-4 mb-4">
-                <h1 className="auth-title mb-2">Criar Conta</h1>
-                <p className="auth-subtitle mb-0">
-                    Regista-te para poderes introduzir animais e gerir apenas os teus registos.
-                </p>
-            </div>
-
             <div className="row justify-content-center">
                 <div className="col-12 col-md-7 col-lg-5">
                     <div className="card shadow-sm">
@@ -47,7 +49,7 @@ export default function Register() {
 
                             <form onSubmit={onSubmit} className="d-grid gap-3">
                                 <div>
-                                    <label className="form-label">Email / Username</label>
+                                    <label className="form-label">Email</label>
                                     <input
                                         className="form-control"
                                         value={username}
@@ -66,7 +68,7 @@ export default function Register() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
                                     />
-                                    <div className="form-text">Mínimo 6 caracteres (podes ter regras extra no Identity).</div>
+                                    <div className="form-text">Mínimo 6 caracteres.</div>
                                 </div>
 
                                 <div>
@@ -90,10 +92,7 @@ export default function Register() {
                             </form>
                         </div>
                     </div>
-
-                    <div className="text-muted small mt-3">
-                        Se o teu backend estiver com confirmação de conta obrigatória, o login automático após registo pode não ocorrer.
-                    </div>
+                    
                 </div>
             </div>
         </div>

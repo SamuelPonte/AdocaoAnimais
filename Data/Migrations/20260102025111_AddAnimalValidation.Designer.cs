@@ -3,6 +3,7 @@ using System;
 using AdocaoAnimais_v1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdocaoAnimais_v1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102025111_AddAnimalValidation")]
+    partial class AddAnimalValidation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
@@ -28,6 +31,7 @@ namespace AdocaoAnimais_v1.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Dono")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Especie")
@@ -60,27 +64,6 @@ namespace AdocaoAnimais_v1.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Animais");
-                });
-
-            modelBuilder.Entity("AdocaoAnimais_v1.Models.Like", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AnimalId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnimalId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -277,17 +260,6 @@ namespace AdocaoAnimais_v1.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("AdocaoAnimais_v1.Models.Like", b =>
-                {
-                    b.HasOne("AdocaoAnimais_v1.Models.Animal", "Animal")
-                        .WithMany()
-                        .HasForeignKey("AnimalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Animal");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
