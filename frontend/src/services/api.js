@@ -1,5 +1,13 @@
-﻿const BASE = ""; // mesmo domínio => vazio
+﻿// Base da API (mesmo domínio)
+const BASE = "";
 
+
+/**
+ * Função genérica para pedidos HTTP.
+ * @param {string} path
+ * @param {object} options
+ * @returns {Promise<any|string|null>}
+ */
 async function request(path, options = {}) {
     const res = await fetch(`${BASE}${path}`, {
         credentials: "include",
@@ -19,7 +27,17 @@ async function request(path, options = {}) {
     return res.text();
 }
 
+/**
+ * Serviço de comunicação com a API backend.
+ * @type {object}
+ */
 export const api = {
+    /**
+     * Autenticação
+     * @param {string} username
+     * @param {string} password
+     * @returns {Promise<any>}
+     */
     login: (username, password) =>
         request("/api/AutenticacaoApi/login", {
             method: "POST",
@@ -28,6 +46,12 @@ export const api = {
                 Password: password,
             }),
         }),
+    /**
+     * Registar utilizador
+     * @param {string} username
+     * @param {string} password
+     * @returns {Promise<any>}
+     */
     register: (username, password) =>
         request("/api/AutenticacaoApi/register", {
             method: "POST",
@@ -36,13 +60,32 @@ export const api = {
                 Password: password,
             }),
         }),
+
+    /**
+     * Saber quem sou eu
+     * @returns {Promise<any>}
+     */
     whoami: () => request("/api/AutenticacaoApi/whoami"),
+
+    /**
+     * Sair da sessão
+     * @returns {Promise<any>}
+     */
     logout: () => request("/api/AutenticacaoApi/logout", {
         method: "POST"
     }),
-
-    listAnimais: () => request("/api/AnimaisApi"),
     
+    /**
+     * Animais
+     * @returns {Promise<any[]>}
+     */
+    listAnimais: () => request("/api/AnimaisApi"),
+
+    /**
+     * Criar animal
+     * @param {object} animal
+     * @returns {Promise<any>}
+     */
     createAnimal: (animal) =>
         request("/api/AnimaisApi", { 
             method: "POST",
@@ -57,20 +100,43 @@ export const api = {
                 foto: animal.foto
             }) 
         }),
+
+    /**
+     * Atualizar o animal criado
+     * @param {number} id
+     * @param {object} animal
+     * @returns {Promise<any>}
+     */
     updateAnimal: (id, animal) =>
         request(`/api/AnimaisApi/${id}`, { 
             method: "PUT", 
             body: JSON.stringify(animal) 
         }),
+
+    /**
+     * Eliminar o animal criado
+     * @param {number} id
+     * @returns {Promise<any>}
+     */
     deleteAnimal: (id) =>
         request(`/api/AnimaisApi/${id}`, { 
             method: "DELETE" 
         }),
-
+    
+    /**
+     * Likes
+     * @returns {Promise<object>}
+     */
     likesSummary: () => 
         request("/api/LikesApi/summary", { 
             credentials: "include" 
         }),
+    
+    /**
+     * Dar o like 
+     * @param {number} animalId
+     * @returns {Promise<any>}
+     */
     toggleLike: (animalId) => 
         request(`/api/LikesApi/toggle/${animalId}`, { 
             method: "POST", 

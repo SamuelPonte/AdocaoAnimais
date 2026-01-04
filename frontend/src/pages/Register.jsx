@@ -4,22 +4,34 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import { useAuth } from "../App";
 
+/**
+ * Página de registo de utilizadores.
+ * @returns {React.JSX.Element}
+ */
 export default function Register() {
     const nav = useNavigate();
     const { refresh } = useAuth();
+    
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
     const [msg, setMsg] = useState("");
-    
 
 
+    /**
+     * Valida e submete o formulário de registo.
+     * Aplica regras mínimas de password antes de enviar para a API.
+     * @param {Event} e
+     * @returns {Promise<void>}
+     */
     async function onSubmit(e) {
         e.preventDefault();
         setMsg("");
 
         const u = username.trim();
         if (!u) return setMsg("Indica um email/username.");
+
+        // Regras básicas de password (validação do lado do cliente)
         if (password.length < 6) return setMsg("A password deve ter pelo menos 6 caracteres.");
         if (!/[^A-Za-z0-9]/.test(password)) return setMsg("A password deve conter pelo menos 1 caraácter especial.");
         if (!/[a-z]/.test(password)) return setMsg("A password deve conter pelo menos uma letra minúscula.");
@@ -39,6 +51,7 @@ export default function Register() {
 
     return (
         <div className="auth">
+            {/* JSX do formulário */}
             <div className="row justify-content-center">
                 <div className="col-12 col-md-7 col-lg-5">
                     <div className="card shadow-sm">

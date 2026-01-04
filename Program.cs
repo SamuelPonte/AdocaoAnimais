@@ -5,15 +5,20 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configuração da ligação à base de dados (SQLite)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
+
+// Página de erros detalhada em desenvolvimento (EF Core)
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Configuração do ASP.NET Identity (autenticação)
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// MVC + configuração JSON (ex.: enums como string)
 builder.Services
     .AddControllersWithViews()
     .AddJsonOptions(o =>

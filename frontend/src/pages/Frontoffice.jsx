@@ -3,7 +3,11 @@ import { api } from "../services/api";
 import "../styles/frontoffice.css";
 import { ESPECIES, PORTES, SEXOS, labelOf } from "../constants/enums";
 
-
+/**
+ * Modal reutilizável para apresentar informação em destaque.
+ * @param {{ title: string, children: any, onClose: Function }} props
+ * @returns {React.JSX.Element}
+ */
 function Modal({ title, children, onClose }) {
     // modal simples em React (não depende do JS do Bootstrap)
     return (
@@ -24,17 +28,22 @@ function Modal({ title, children, onClose }) {
                     </div>
                 </div>
             </div>
+            {/* Fecha o modal ao clicar no backdrop */}
             <div className="modal-backdrop fade show" onClick={onClose} />
         </>
     );
 }
 
+/**
+ * Página principal (frontoffice) com listagem de animais, filtros, paginação e likes.
+ * @returns {React.JSX.Element}
+ */
 export default function Frontoffice() {
     const [animais, setAnimais] = useState([]);
     const [q, setQ] = useState("");
     const [page, setPage] = useState(1);
-    
-    //likes
+
+    // Likes: { [idAnimal]: { count: number, likedByMe: boolean } }
     const [likes, setLikes] = useState({}); // { [id]: {count, likedByMe} }
     const [me, setMe] = useState(null);
 
@@ -43,11 +52,15 @@ export default function Frontoffice() {
     const [fPorte, setFPorte] = useState("");
     const [fSexo, setFSexo] = useState("");
 
-    // modal
+    // Modal (animal selecionado)
     const [selected, setSelected] = useState(null);
 
     const pageSize = 9;
 
+    /**
+     * Carrega dados iniciais: animais, utilizador autenticado e resumo de likes.
+     * @returns {void}
+     */
     useEffect(() => {
         api.listAnimais()
             .then(setAnimais)
@@ -58,12 +71,20 @@ export default function Frontoffice() {
             .catch(() => setLikes({}));
     }, []);
 
+    /**
+     * Atualiza o resumo de likes quando muda o utilizador autenticado.
+     * @returns {void}
+     */
     useEffect(() => {
         api.likesSummary().then(setLikes).catch(() => setLikes({}));
     }, [me]);
 
 
-
+    /**
+     * Gera listas de opções para filtros.
+     * Inclui valores extra vindos da BD por segurança.
+     * @returns {{ especies: string[], portes: string[], sexos: string[] }}
+     */
     const options = useMemo(() => {
         // se quiseres, podes incluir também valores “estranhos” vindos da BD (só por segurança)
         const extraEspecies = [...new Set(animais.map(a => a.especie).filter(Boolean))];
@@ -77,6 +98,10 @@ export default function Frontoffice() {
         };
     }, [animais]);
 
+    /**
+     * Aplica pesquisa e filtros à lista de animais.
+     * @returns {any[]}
+     */
     const filtrados = useMemo(() => {
         const term = q.trim().toLowerCase();
 
@@ -93,13 +118,22 @@ export default function Frontoffice() {
         });
     }, [animais, q, fEspecie, fPorte, fSexo]);
 
+    // Paginação (protege contra páginas inválidas)
     const totalPages = Math.max(1, Math.ceil(filtrados.length / pageSize));
     const pageSafe = Math.min(Math.max(page, 1), totalPages);
     const inicio = (pageSafe - 1) * pageSize;
     const pagina = filtrados.slice(inicio, inicio + pageSize);
 
+    /**
+     * Reinicia a página quando a pesquisa ou filtros mudam.
+     * @returns {void}
+     */
     useEffect(() => setPage(1), [q, fEspecie, fPorte, fSexo]);
 
+    /**
+     * Limpa pesquisa e filtros.
+     * @returns {void}
+     */
     function limparFiltros() {
         setQ("");
         setFEspecie("");
@@ -107,26 +141,42 @@ export default function Frontoffice() {
         setFSexo("");
     }
 
+    /**
+     * Volta uma página na paginação.
+     * @returns {void}
+     */
     function prev() {
         setPage((p) => Math.max(1, p - 1));
     }
 
+    /**
+     * Avança uma página na paginação.
+     * @returns {void}
+     */
     function next() {
         setPage((p) => Math.min(totalPages, p + 1));
     }
 
+    /**
+     * Alterna o like num animal (adiciona/remove).
+     * Só permite a operação se o utilizador estiver autenticado.
+     * @param {number} id
+     * @returns {Promise<void>}
+     */
     async function onToggleLike(id) {
         if (!me?.user) {
-            // opcional: abrir modal / mensagem “tens de fazer login”
-            return;
+             // abrir modal “tens de fazer login”
+             return;
         }
         await api.toggleLike(id);
+        // Recarrega o resumo para atualizar contagem e estado (likedByMe)
         const fresh = await api.likesSummary();
         setLikes(fresh);
     }
 
 
     return (
+        /* JSX do frontoffice */
         <div className="frontoffice">
             {/* Hero */}
             <div className="frontoffice-hero p-4 p-md-5 rounded-4 mb-4">

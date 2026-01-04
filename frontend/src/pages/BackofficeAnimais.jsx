@@ -5,7 +5,9 @@ import "../styles/backoffice-animais.css";
 import { useAuth } from "../App";
 import { ESPECIES, PORTES, SEXOS, labelOf } from "../constants/enums";
 
-
+/**
+ * Estado inicial vazio do formulário de animais.
+ */
 const vazio = {
     id: 0,
     nome: "",
@@ -18,6 +20,9 @@ const vazio = {
     foto: ""
 };
 
+/**
+ * Página de backoffice para gestão de animais do utilizador autenticado.
+ */
 export default function BackofficeAnimais() {
     const nav = useNavigate();
     const { logout } = useAuth();
@@ -26,6 +31,9 @@ export default function BackofficeAnimais() {
     const [form, setForm] = useState(vazio);
     const [msg, setMsg] = useState("");
 
+    /**
+     * Raças disponíveis por espécie.
+     */
     const RACAS_POR_ESPECIE = {
         Cao: ["SRD", "Labrador", "PastorAlemao", "Bulldog", "Outro"],
         Gato: ["SRD", "Persa", "Siamês", "MaineCoon", "Outro"],
@@ -38,31 +46,44 @@ export default function BackofficeAnimais() {
         Outro: ["Outro"]
     };
 
+    // Carrega todos os animais
     async function load() {
         const a = await api.listAnimais();
         setAnimais(a);
     }
 
+    // Verifica utilizador autenticado
     useEffect(() => {
         api.whoami()
             .then((u) => setUser(u))
             .catch(() => nav("/login"));
     }, [nav]);
 
+    // Carrega animais após autenticação
     useEffect(() => {
         if (user) load().catch(console.error);
     }, [user]);
 
+    /**
+     * Filtra a lista de animais, mostrando apenas os pertencentes
+     * ao utilizador autenticado.
+     */
     const meus = useMemo(() => {
         const me = user?.user;
         if (!me) return [];
         return animais.filter((a) => a.dono === me);
     }, [animais, user]);
 
+    // Atualiza um campo do formulário
     function setField(k, v) {
         setForm((f) => ({ ...f, [k]: v }));
     }
 
+    /**
+     * Cria um novo animal associado ao utilizador autenticado.
+     * @param {Event} e
+     * @returns {Promise<void>}
+     */
     async function criar(e) {
         e.preventDefault();
         setMsg("");
@@ -77,12 +98,14 @@ export default function BackofficeAnimais() {
         }
     }
 
+    // Prepara edição de um animal
     async function editar(a) {
         setMsg("");
         setForm(a);
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Guarda alterações do animal
     async function guardar(e) {
         e.preventDefault();
         setMsg("");
@@ -97,6 +120,12 @@ export default function BackofficeAnimais() {
         }
     }
 
+    /**
+     * Elimina um animal criado pelo utilizador.
+     * Solicita confirmação antes de executar a operação.
+     * @param {number} id
+     * @returns {Promise<void>}
+     */
     async function apagar(id) {
         if (!confirm("Apagar este animal?")) return;
         setMsg("");
@@ -110,6 +139,7 @@ export default function BackofficeAnimais() {
         }
     }
 
+    // Termina sessão
     async function sair() {
         await logout();    
         nav("/login");
@@ -118,6 +148,7 @@ export default function BackofficeAnimais() {
     const isEditing = !!form.id;
 
     return (
+        /* JSX da página (formulário + lista de animais) */
         <div className="container app-container my-4 backoffice-animais">
             {/* Header */}
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">

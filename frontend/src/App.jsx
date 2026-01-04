@@ -6,16 +6,26 @@ import Register from "./pages/Register";
 import BackofficeAnimais from "./pages/BackofficeAnimais";
 import { api } from "./services/api";
 
+/**
+ * Contexto de autenticação da aplicação.
+ */
 const AuthContext = createContext(null);
 
+/**
+ * Hook personalizado para acesso ao contexto de autenticação.
+ */
 export function useAuth() {
     return useContext(AuthContext);
 }
 
+/**
+ * Provider responsável por gerir o estado de autenticação.
+ */
 function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Atualiza o utilizador autenticado
     async function refresh() {
         setLoading(true);
         try {
@@ -28,11 +38,13 @@ function AuthProvider({ children }) {
         }
     }
 
+    // Termina a sessão do utilizador
     async function logout() {
         try { await api.logout(); } catch {}
         await refresh();
     }
 
+    // Verifica sessão ao iniciar a aplicação
     useEffect(() => { refresh(); }, []);
 
     return (
@@ -42,12 +54,16 @@ function AuthProvider({ children }) {
     );
 }
 
+/**
+ * Barra de navegação da aplicação.
+ */
 function NavBar() {
     const { user, isLogged, logout } = useAuth();
     const [open, setOpen] = useState(false);
     const nav = useNavigate();
     const location = useLocation();
 
+    // Fecha o menu ao mudar de rota
     useEffect(() => { setOpen(false); }, [location.pathname]);
     
 
@@ -99,6 +115,9 @@ function NavBar() {
     );
 }
 
+/**
+ * Rota protegida para utilizadores autenticados.
+ */
 function ProtectedRoute({ children }) {
     const { isLogged, loading } = useAuth();
 
@@ -114,6 +133,9 @@ function ProtectedRoute({ children }) {
     return children;
 }
 
+/**
+ * Componente principal da aplicação.
+ */
 export default function App() {
     return (
         <BrowserRouter>

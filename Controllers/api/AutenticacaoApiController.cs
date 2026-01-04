@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AdocaoAnimais_v1.Controllers.api
 {
+    /// <summary>
+    /// API de autenticação e gestão de sessão (Identity).
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AutenticacaoApiController : ControllerBase
@@ -12,7 +15,10 @@ namespace AdocaoAnimais_v1.Controllers.api
         
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
-
+    
+        /// <summary>
+        /// Inicializa o controller com os serviços do Identity.
+        /// </summary>
         public AutenticacaoApiController(
             UserManager<IdentityUser> userManager, 
             SignInManager<IdentityUser> signInManager)
@@ -21,7 +27,12 @@ namespace AdocaoAnimais_v1.Controllers.api
             _signInManager = signInManager;
         }
         
-
+        // POST: api/AutenticacaoApi/register
+        /// <summary>
+        /// Regista um novo utilizador e inicia sessão automaticamente.
+        /// </summary>
+        /// <param name="loginModel">Credenciais (username/email e password).</param>
+        /// <returns>200 em sucesso, ou erro de validação.</returns>
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] LoginApiModel loginModel)
@@ -46,7 +57,12 @@ namespace AdocaoAnimais_v1.Controllers.api
             return Ok();
 
         }
-
+        
+        // GET: api/AutenticacaoApi/whoami
+        /// <summary>
+        /// Devolve a identificação do utilizador autenticado (se existir).
+        /// </summary>
+        /// <returns>Objeto com o username/email autenticado.</returns>
         [HttpGet]
         [Route("whoami")]
         public ActionResult WhoAmi()
@@ -57,7 +73,12 @@ namespace AdocaoAnimais_v1.Controllers.api
                 Ok(new WhoAmI(){ User=""});
         }
 
-
+        // POST: api/AutenticacaoApi/login
+        /// <summary>
+        /// Inicia sessão com email e password.
+        /// </summary>
+        /// <param name="loginModel">Credenciais do utilizador.</param>
+        /// <returns>200 em sucesso, 401 se inválido.</returns>
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] LoginApiModel loginModel)
@@ -67,7 +88,7 @@ namespace AdocaoAnimais_v1.Controllers.api
                 return BadRequest("Request inválido");
             }
 
-            // ir buscar o user
+            // Procura o utilizador pelo emailr
             var identity = await _userManager.FindByEmailAsync(loginModel.Username);
             if (identity == null)
             {
@@ -83,7 +104,12 @@ namespace AdocaoAnimais_v1.Controllers.api
                 return Unauthorized();
             }
         }
-
+        
+        // POST: api/AutenticacaoApi/logout
+        /// <summary>
+        /// Termina a sessão do utilizador autenticado.
+        /// </summary>
+        /// <returns>200 em sucesso.</returns>
         [HttpPost]
         [Route("logout")]
         public async Task<ActionResult> LogOut()

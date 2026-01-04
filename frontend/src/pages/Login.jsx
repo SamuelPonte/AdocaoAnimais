@@ -4,6 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import { useAuth } from "../App";
 
+/**
+ * Página de login (autenticação do utilizador).
+ * @returns {React.JSX.Element}
+ */
 export default function Login() {
     const nav = useNavigate();
     const { refresh } = useAuth()
@@ -11,6 +15,12 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [msg, setMsg] = useState("");
 
+    /**
+     * Submete o formulário de login e inicia sessão no backend.
+     * Em caso de sucesso, atualiza o estado global de autenticação.
+     * @param {Event} e
+     * @returns {Promise<void>}
+     */
     async function onSubmit(e) {
         e.preventDefault();
         setMsg("");
@@ -20,7 +30,7 @@ export default function Login() {
             await refresh();
             nav("/backoffice/animais");
         } catch (e2) {
-            // setMsg(`Login inválido: ${e2.message}`);
+            // Mensagem simples para o utilizador (evita expor detalhes internos)
             setMsg('Email ou Password incorreta');
             console.error(e2);
         }
@@ -28,6 +38,7 @@ export default function Login() {
 
     return (
         <div className="auth">
+            {/* JSX do formulário */}
             <div className="row justify-content-center">
                 <div className="col-12 col-md-7 col-lg-5">
                     <div className="card shadow-sm">
